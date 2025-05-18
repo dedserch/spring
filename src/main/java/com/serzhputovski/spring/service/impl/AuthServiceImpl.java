@@ -3,7 +3,6 @@ package com.serzhputovski.spring.service.impl;
 import com.serzhputovski.spring.entity.User;
 import com.serzhputovski.spring.service.AuthService;
 import com.serzhputovski.spring.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,7 +17,6 @@ public class AuthServiceImpl implements AuthService {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
 
-    @Autowired
     public AuthServiceImpl(PasswordEncoder passwordEncoder,
                            UserService userService,
                            AuthenticationManager authenticationManager) {
@@ -29,18 +27,28 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public User register(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        String rawPassword = user.getPassword();
+        user.setPassword(passwordEncoder.encode(rawPassword));
         User newUser = userService.save(user);
 
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(
                         newUser.getUsername(),
-                        user.getPassword()
+                        rawPassword
                 );
 
         Authentication authentication = authenticationManager.authenticate(authToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         return newUser;
+    }
+
+    @Override
+    public Authentication login(String username, String password) {
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(username, password);
+        Authentication authentication = authenticationManager.authenticate(authToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return authentication;
     }
 }
