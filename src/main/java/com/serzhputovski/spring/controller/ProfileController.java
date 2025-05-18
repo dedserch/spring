@@ -26,13 +26,20 @@ public class ProfileController {
     }
 
     @GetMapping
+    public String viewProfile(Model model, Principal principal) {
+        User user = userService.findByUsername(principal.getName());
+        model.addAttribute("user", user);
+        return "profile/view";
+    }
+
+    @GetMapping("/edit")
     public String editProfile(Model model, Principal principal) {
         User user = userService.findByUsername(principal.getName());
         model.addAttribute("user", user);
-        return "profile";
+        return "profile/edit";
     }
 
-    @PostMapping
+    @PostMapping("/edit")
     public String updateProfile(@ModelAttribute("user") User form,
                                 @RequestParam("avatar") MultipartFile avatar,
                                 Principal principal) {
