@@ -30,38 +30,27 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> findAll() {
-        log.info("Find all users");
-
-        var users = this.userRepository.findAll();
-
-        log.info("Found {} users", users.size());
-        return users;
+        return userRepository.findAll();
     }
 
     @Override
     @Transactional
     public User save(User user) {
-        log.debug("Attempting to save user {}", user);
-        var role = this.roleService.findByRoleName("ROLE_USER");
+        var role = roleService.findByRoleName("ROLE_USER");
         user.addRole(role);
-        var newUser =  this.userRepository.save(user);
-        log.info("Saved user {}", newUser);
-        return newUser;
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with username '%s' not found".formatted(username)));
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.debug("Attempting to load user {}", username);
-
-        var user = this.userRepository.findByUsername(username).orElseThrow((
-                () -> {
-                    var message = "User with username: '%s' was not fouund".formatted(username);
-                    log.warn(message);
-                    return new ResourceNotFoundException(message);
-                }
-        ));
-
-        log.info("Loaded user {}", user);
+        User user = findByUsername(username);
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
