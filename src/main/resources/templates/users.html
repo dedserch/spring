@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Users</title>
+</head>
+<body>
+<ul>
+    <form th:action="@{/logout}">
+        <button type="submit">Logout</button>
+    </form>
+    <li th:each="user : ${listUsers}" th:text="${user.username}"></li>
+</ul>
+</body>
+</html>
