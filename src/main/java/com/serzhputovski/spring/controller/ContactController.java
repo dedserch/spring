@@ -4,6 +4,8 @@ import com.serzhputovski.spring.entity.Contact;
 import com.serzhputovski.spring.entity.User;
 import com.serzhputovski.spring.service.ContactService;
 import com.serzhputovski.spring.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -23,9 +25,15 @@ public class ContactController {
     }
 
     @GetMapping
-    public String list(Model model, Principal principal) {
+    public String list(Model model,
+                       Principal principal,
+                       @RequestParam(defaultValue = "0") int page,
+                       @RequestParam(defaultValue = "5") int size) {
         User user = userService.findByUsername(principal.getName());
-        model.addAttribute("contacts", contactService.findByUser(user));
+        Page<Contact> contactsPage = contactService.findByUser(user, PageRequest.of(page, size));
+        model.addAttribute("contactsPage", contactsPage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", size);
         return "contacts/list";
     }
 
@@ -44,7 +52,7 @@ public class ContactController {
     }
 
     @PostMapping("/delete/{id}")
-    public String delete(@PathVariable Long id, Principal principal) {
+    public String delete(@PathVariable Long id) {
         contactService.deleteById(id);
         return "redirect:/contacts";
     }

@@ -4,9 +4,9 @@ import com.serzhputovski.spring.entity.Contact;
 import com.serzhputovski.spring.entity.User;
 import com.serzhputovski.spring.repository.ContactRepository;
 import com.serzhputovski.spring.service.ContactService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class ContactServiceImpl implements ContactService {
@@ -18,8 +18,8 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public List<Contact> findByUser(User user) {
-        return repo.findByUser(user);
+    public Page<Contact> findByUser(User user, Pageable pageable) {
+        return repo.findByUser(user, pageable);
     }
 
     @Override
